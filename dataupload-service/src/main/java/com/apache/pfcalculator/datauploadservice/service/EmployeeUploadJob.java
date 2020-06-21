@@ -67,6 +67,7 @@ public class EmployeeUploadJob {
 						ZipEntry zipEntry = entries.nextElement();
 						InputStream in = zipFile.getInputStream(zipEntry);
 						String json = IOUtils.toString(in);
+						in.close();
 						JSONObject jsonObject = new JSONObject(json);				
 						String jsonDate = jsonObject.getString(PF_STARTDATE_STRING);								
 						jsonObject.put(PF_STARTDATE_STRING, CommonUtils.convertJsonDateToAcceptedFormat(jsonDate));
@@ -80,7 +81,7 @@ public class EmployeeUploadJob {
 				}
 			}	
 			finally{
-				zipFile.close();
+				zipFile.close();				
 				Files.delete(file.toPath());
 			}			
 		}
