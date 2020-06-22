@@ -8,8 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+
+import com.apache.pfcalculator.proxyservice.loggeraspect.LoggerAspect;
 
 @Configuration
+@EnableAspectJAutoProxy
 public class ProxyConfiguartions {
 		
 	@Value("${elasticsearch.host}")
@@ -35,4 +39,10 @@ public class ProxyConfiguartions {
 		}
 		return client;
 	}
+	
+//	@Bean
+//	public LoggerAspect loggerAspect()
+//	{
+//		return new LoggerAspect();
+//	}
 }

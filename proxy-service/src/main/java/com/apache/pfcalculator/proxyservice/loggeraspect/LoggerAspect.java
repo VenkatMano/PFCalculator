@@ -18,7 +18,7 @@ import com.netflix.zuul.context.RequestContext;
 @Aspect
 public class LoggerAspect {
 			
-	@Around(value = "execution(* com.apache.pfcalculator.proxyservice.filters.PreRequestFilter.run())")
+	@Around(value = "execution(* com.apache.pfcalculator.proxyservice.utils.FilterUtils.processRequestContext(..))")
 	public void logTheRequestAspect(ProceedingJoinPoint joinPoint) throws Throwable
 	{
 		RequestContext requestContext = RequestContext.getCurrentContext();
@@ -33,10 +33,11 @@ public class LoggerAspect {
 		
 		//After the pre filter ended
 		customRequest.setRequestId(requestContext.getRequest().getHeader("requestId"));
-		requestContext.getRequest().setAttribute("customRequest", customRequest);		
+		requestContext.getRequest().setAttribute("customRequest", customRequest);	
+		System.out.println("came");
 	}
 	
-	@Around(value = "execution(* com.apache.pfcalculator.proxyservice.filters.PostRequestFilter.run())")
+	@Around(value = "execution(* com.apache.pfcalculator.proxyservice.utils.FilterUtils.processFinishRequestContext(..))")
 	public void logTheRequestAspectAfterCompletion(ProceedingJoinPoint joinPoint) throws Throwable
 	{
 		RequestContext requestContext = RequestContext.getCurrentContext();
@@ -51,8 +52,9 @@ public class LoggerAspect {
 		else
 		{
 			customRequest.setMessage(requestContext.getResponseBody());
-		}
+		}		
 		joinPoint.proceed();
+		System.out.println("came");
 		//An elk based logging function should be called here
 	}
 }
