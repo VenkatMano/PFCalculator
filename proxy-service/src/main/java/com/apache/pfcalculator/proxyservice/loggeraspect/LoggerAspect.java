@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -34,6 +35,7 @@ public class LoggerAspect {
 	{
 		RequestContext requestContext = RequestContext.getCurrentContext();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss.SSS");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		CustomeRequest customRequest = new CustomeRequest();
 		customRequest.setInTime(simpleDateFormat.parse(simpleDateFormat.format(new Date())));
 		//The redirected service should be name of the service to which the request is redirected, a function will be 
@@ -53,6 +55,7 @@ public class LoggerAspect {
 	{
 		RequestContext requestContext = RequestContext.getCurrentContext();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss.SSS");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		CustomeRequest customRequest = (CustomeRequest)requestContext.getRequest().getAttribute("customRequest");
 		customRequest.setOutTime(simpleDateFormat.parse(simpleDateFormat.format(new Date())));
 		customRequest.setStatusCode(requestContext.getResponseStatusCode());		

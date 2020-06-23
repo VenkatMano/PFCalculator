@@ -30,7 +30,6 @@ import com.apache.pfcalculator.datauploadservice.model.Employee;
 import com.apache.pfcalculator.datauploadservice.service.EmployeeService;
 
 @RestController
-@RequestMapping("/upload-service")
 public class UploadResource {
 	
 	@Autowired
@@ -75,4 +74,10 @@ public class UploadResource {
 		}		
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}	
+	
+	@GetMapping(value="hello")
+	public ResponseEntity returnHello()
+	{
+		return new ResponseEntity<>("Hello", HttpStatus.OK);
+	}
 }
