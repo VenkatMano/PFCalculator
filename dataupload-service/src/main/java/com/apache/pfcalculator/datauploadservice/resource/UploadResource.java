@@ -74,12 +74,5 @@ public class UploadResource {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}		
 		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
-	
-	@GetMapping(value="/hello")
-	public String returnHello(@RequestHeader("requestId") String requestId)	
-	{		
-		return "hello";
-	}
-	
+	}	
 }
