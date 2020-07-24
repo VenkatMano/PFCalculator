@@ -1,20 +1,15 @@
 package com.apache.pfcalculator.dataviewerservice.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.document.DocumentField;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -22,7 +17,6 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +24,8 @@ import org.springframework.stereotype.Service;
 
 import com.apache.pfcalculator.dataviewerservice.model.Employee;
 import com.apache.pfcalculator.dataviewerservice.model.EmployeeAggregate;
-import com.apache.pfcalculator.dataviewerservice.model.PfAndSalaryModel;
-import com.apache.pfcalculator.dataviewerservice.model.PfModel;
-import com.apache.pfcalculator.dataviewerservice.model.RoleAndSalaryAggregateModel;
-import com.apache.pfcalculator.dataviewerservice.model.RoleModel;
+
+import static com.apache.pfcalculator.dataviewerservice.service.ServiceConstants.*;
 
 @Service
 public class EmployeeDetailServiceImple implements EmployeeDetailService {
@@ -80,17 +72,17 @@ public class EmployeeDetailServiceImple implements EmployeeDetailService {
 			searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 			List<Object> returnList = new ArrayList<>();
 			if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnRoleAndSalary())) {
-				searchSourceBuilder.aggregation(AggregationBuilders.terms("role_aggregation").field("role.keyword")
+				searchSourceBuilder.aggregation(AggregationBuilders.terms(ROLE_AGGREGATION).field("role.keyword")
 						.subAggregation(AggregationBuilders.avg("avg_aggregation").field("salary")));
 			} else if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnCreationDateAndSalary())) {
 				searchSourceBuilder
-						.aggregation(AggregationBuilders.terms("pfStartDate_aggregation").field("pfStartDate.keyword")
+						.aggregation(AggregationBuilders.terms(PF_AGGREGATION).field("pfStartDate.keyword")
 								.subAggregation(AggregationBuilders.avg("avg_aggregation").field("salary")));
 			} else if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnRole())) {
-				searchSourceBuilder.aggregation(AggregationBuilders.terms("role_aggregation").field("role.keyword"));
+				searchSourceBuilder.aggregation(AggregationBuilders.terms(ROLE_AGGREGATION).field("role.keyword"));
 			} else if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnCreationDate())) {
 				searchSourceBuilder
-						.aggregation(AggregationBuilders.terms("pfStartDate_aggregation").field("pfStartDate.keyword"));
+						.aggregation(AggregationBuilders.terms(PF_AGGREGATION).field("pfStartDate.keyword"));
 			}
 
 			SearchRequest searchRequest = new SearchRequest("employeedata").source(searchSourceBuilder);
@@ -101,43 +93,27 @@ public class EmployeeDetailServiceImple implements EmployeeDetailService {
 			if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnRoleAndSalary())
 					|| findAnObjectNullAndTrue(employeeAggregate.getBasedOnRole())) {
 				ParsedStringTerms roleAggregation = (ParsedStringTerms) aggregationsMapFromResult
-						.get("role_aggregation");
+						.get(ROLE_AGGREGATION);
 				List<? extends Bucket> bucketList = roleAggregation.getBuckets();
 				if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnRoleAndSalary())) {
-					bucketList.stream().forEach(e -> {
-						RoleAndSalaryAggregateModel roleAndSalaryAggregateModel = ServiceUtils
-								.getRoleAndSalaryModelFromBucket(e);
-						returnList.add(roleAndSalaryAggregateModel);
-
-					});
+					returnList = bucketList.stream().map(ServiceUtils::getRoleAndSalaryModelFromBucket).collect(Collectors.toList());
 					return returnList;
 				}
 				else {
-					bucketList.stream().forEach(e -> {
-						RoleModel roleModel = ServiceUtils.getRoleModel(e);
-						returnList.add(roleModel);
-					});
+					returnList = bucketList.stream().map(ServiceUtils::getRoleModel).collect(Collectors.toList());
 					return returnList;
 				}
 			} else if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnCreationDateAndSalary())
 					|| findAnObjectNullAndTrue(employeeAggregate.getBasedOnCreationDate())) {				
 				ParsedStringTerms roleAggregation = (ParsedStringTerms) aggregationsMapFromResult
-						.get("pfStartDate_aggregation");
+						.get(PF_AGGREGATION);
 				List<? extends Bucket> bucketList = roleAggregation.getBuckets();
 				if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnCreationDateAndSalary())) {
-					bucketList.stream().forEach(e -> {
-						PfAndSalaryModel pfSalaryModel = ServiceUtils
-								.getPfAndSalaryModel(e);
-						returnList.add(pfSalaryModel);
-
-					});
+					returnList = bucketList.stream().map(ServiceUtils::getPfAndSalaryModel).collect(Collectors.toList());
 					return returnList;
 				}
 				else {
-					bucketList.stream().forEach(e -> {
-						PfModel pfModel = ServiceUtils.getPfModel(e);
-						returnList.add(pfModel);
-					});
+					returnList = bucketList.stream().map(ServiceUtils::getPfModel).collect(Collectors.toList());
 					return returnList;
 				}
 			}			
