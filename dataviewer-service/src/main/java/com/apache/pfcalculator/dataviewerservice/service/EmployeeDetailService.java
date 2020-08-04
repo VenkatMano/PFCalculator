@@ -13,5 +13,7 @@ public interface EmployeeDetailService {
 	public Employee getEmployeeById(String id);	
 	
 	public List<Object> aggregateEmployee(EmployeeAggregate employeeAggregate);
+	
+	public List<Object> sortEmployeesPresentBasedOnField(String sortField);
 
 }

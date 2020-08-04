@@ -1,10 +1,13 @@
 package com.apache.pfcalculator.dataviewerservice.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -19,6 +22,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -128,6 +132,39 @@ public class EmployeeDetailServiceImple implements EmployeeDetailService {
 			return value;
 		}
 		return false;
+	}
+
+	@Override
+	public List<Object> sortEmployeesPresentBasedOnField(String sortField) {
+		List<Object> employeeList = new ArrayList<>();
+		try
+		{
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+			searchSourceBuilder.sort(sortField, SortOrder.ASC);
+			SearchRequest searchRequest = new SearchRequest("employeeData").source(searchSourceBuilder);
+			SearchResponse searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);			
+			List<SearchHit> hitList = Arrays.asList(searchResponse.getHits().getHits());						
+			hitList.stream().forEach(e ->  {
+				Employee employee = new Employee();
+				Map<String, Object> documentFieldMap = e.getSourceAsMap();
+				employee.setId((String) documentFieldMap.get("id"));
+				employee.setEmailId((String) documentFieldMap.get("emailId"));
+				employee.setAadharId((String) documentFieldMap.get("aadharId"));
+				employee.setFirstName((String) documentFieldMap.get("firstName"));
+				employee.setLastName((String) documentFieldMap.get("lastName"));
+				employee.setPanCardId((String) documentFieldMap.get("panCardId"));				
+				employee.setRole((String) documentFieldMap.get("role"));
+				employee.setSalary(Long.valueOf((String.valueOf(documentFieldMap.get("salary")))));
+				employee.setTotalPfInAccount((Long.valueOf(String.valueOf(documentFieldMap.get("totalPfInAccount")))));
+				employeeList.add(employee);
+			});
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return employeeList;
 	}
 
 }
