@@ -36,19 +36,11 @@ public class DataViewResource {
 	
 	@PostMapping("/details")
 	public ResponseEntity aggregateAndgetEmployeeDetails(@RequestBody EmployeeAggregate employeeAggregate)
-	{
-		if(findAnObjectNullAndTrue(employeeAggregate.getSort()) && employeeAggregate.getSortField()!=null)
+	{		
+		if(ServiceUtils.CHECKNOTNULL.and(ServiceUtils.CHECKTRUE).test((employeeAggregate.getSort())) && ServiceUtils.CHECKNOTNULL.test(employeeAggregate.getSortField()))
 		{
 			return new ResponseEntity<>(employeeDetailService.sortEmployeesPresentBasedOnField(employeeAggregate.getSortField()), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(employeeDetailService.aggregateEmployee(employeeAggregate), HttpStatus.OK);
 	}
-	
-	private boolean findAnObjectNullAndTrue(Boolean value) {
-		if (value != null && value) {
-			return value;
-		}
-		return false;
-	}
-
 }

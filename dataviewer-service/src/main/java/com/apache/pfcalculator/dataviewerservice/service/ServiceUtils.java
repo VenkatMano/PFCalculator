@@ -2,6 +2,8 @@ package com.apache.pfcalculator.dataviewerservice.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -15,6 +17,10 @@ import com.apache.pfcalculator.dataviewerservice.model.RoleAndSalaryAggregateMod
 import com.apache.pfcalculator.dataviewerservice.model.RoleModel;
 
 public class ServiceUtils {
+	
+	public static final Predicate<Object> CHECKNOTNULL = Objects::nonNull;
+	
+	public static final Predicate<Object> CHECKTRUE = a -> (Boolean)a;
 
 	public static RoleAndSalaryAggregateModel getRoleAndSalaryModelFromBucket(Bucket bucket) {
 		RoleAndSalaryAggregateModel roleAndSalaryModel = new RoleAndSalaryAggregateModel();
@@ -51,5 +57,4 @@ public class ServiceUtils {
 		pfModel.setAggregatedDocumentCount(bucket.getDocCount());
 		return pfModel;
 	}
-
 }

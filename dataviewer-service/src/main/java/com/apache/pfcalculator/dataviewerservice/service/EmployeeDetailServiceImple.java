@@ -6,7 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.elasticsearch.action.search.SearchRequest;
@@ -91,9 +97,8 @@ public class EmployeeDetailServiceImple implements EmployeeDetailService {
 
 			SearchRequest searchRequest = new SearchRequest("employeedata").source(searchSourceBuilder);
 			SearchResponse response = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-			Aggregations aggregationFromResult = response.getAggregations();
-			List<Aggregation> aggregationList = new ArrayList<>();
-			Map<String, Aggregation> aggregationsMapFromResult = aggregationFromResult.asMap();
+			Aggregations aggregationFromResult = response.getAggregations();			
+			Map<String, Aggregation> aggregationsMapFromResult = aggregationFromResult.asMap();			 
 			if (findAnObjectNullAndTrue(employeeAggregate.getBasedOnRoleAndSalary())
 					|| findAnObjectNullAndTrue(employeeAggregate.getBasedOnRole())) {
 				ParsedStringTerms roleAggregation = (ParsedStringTerms) aggregationsMapFromResult
@@ -124,14 +129,11 @@ public class EmployeeDetailServiceImple implements EmployeeDetailService {
 		} catch (Exception e) {
 			System.out.println("Error occured");
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
-	private boolean findAnObjectNullAndTrue(Boolean value) {
-		if (value != null && value) {
-			return value;
-		}
-		return false;
+	private boolean findAnObjectNullAndTrue(Boolean value) {		
+		return ServiceUtils.CHECKNOTNULL.and(ServiceUtils.CHECKTRUE).test(value);
 	}
 
 	@Override
@@ -142,12 +144,12 @@ public class EmployeeDetailServiceImple implements EmployeeDetailService {
 			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 			searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 			searchSourceBuilder.sort(sortField, SortOrder.ASC);
-			SearchRequest searchRequest = new SearchRequest("employeeData").source(searchSourceBuilder);
+			SearchRequest searchRequest = new SearchRequest("employeedata").source(searchSourceBuilder);
 			SearchResponse searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);			
-			List<SearchHit> hitList = Arrays.asList(searchResponse.getHits().getHits());						
+			List<SearchHit> hitList = Arrays.asList(searchResponse.getHits().getHits());			
 			hitList.stream().forEach(e ->  {
 				Employee employee = new Employee();
-				Map<String, Object> documentFieldMap = e.getSourceAsMap();
+				Map<String, Object> documentFieldMap = e.getSourceAsMap();				
 				employee.setId((String) documentFieldMap.get("id"));
 				employee.setEmailId((String) documentFieldMap.get("emailId"));
 				employee.setAadharId((String) documentFieldMap.get("aadharId"));
