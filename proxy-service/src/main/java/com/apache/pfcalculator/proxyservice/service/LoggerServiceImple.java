@@ -3,6 +3,7 @@ package com.apache.pfcalculator.proxyservice.service;
 import java.util.Map;
 
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
@@ -36,7 +37,8 @@ public class LoggerServiceImple implements LoggerService{
 		{
 			Map sourceMap = objectMapper.convertValue(customRequest, Map.class);
 			IndexRequest request = new IndexRequest(index, type, customRequest.getRequestId()).source(sourceMap);
-			elasticClient.index(request, RequestOptions.DEFAULT);			
+			IndexResponse response = elasticClient.index(request, RequestOptions.DEFAULT);
+			System.out.println(response.getResult());
 		}
 		catch(Exception ex)
 		{

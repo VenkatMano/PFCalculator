@@ -1,6 +1,7 @@
 package com.apache.pfcalculator.dataviewerservice.resource;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import com.apache.pfcalculator.dataviewerservice.service.ServiceUtils;
 import com.sun.research.ws.wadl.Response;
 
 @RestController
-@RequestMapping(value="/viewer-service")
+@RequestMapping("/viewer-service/")
 public class DataViewResource {
 	
 	@Autowired
@@ -30,7 +31,7 @@ public class DataViewResource {
 	
 	@GetMapping("details/{requestId}")
 	public Employee getEmployeeBasedOnRequestId(@PathVariable("requestId") String requestId)
-	{
+	{				
 		return employeeDetailService.getEmployeeById(requestId);
 	}
 	

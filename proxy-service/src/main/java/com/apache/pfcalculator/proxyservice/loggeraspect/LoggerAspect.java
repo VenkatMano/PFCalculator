@@ -58,16 +58,18 @@ public class LoggerAspect {
 		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		CustomeRequest customRequest = (CustomeRequest)requestContext.getRequest().getAttribute("customRequest");
 		customRequest.setOutTime(simpleDateFormat.parse(simpleDateFormat.format(new Date())));
-		customRequest.setStatusCode(requestContext.getResponseStatusCode());		
+		customRequest.setStatusCode(requestContext.getResponseStatusCode());
+		String responseBody = IOUtils.toString(requestContext.getResponseDataStream());
+		requestContext.setResponseBody(responseBody);
 		joinPoint.proceed();
 		requestContext = RequestContext.getCurrentContext();
 		if(customRequest.getStatusCode()>=400)
 		{
-			customRequest.setErrorMessage(IOUtils.toString(requestContext.getResponseDataStream()));
+			customRequest.setErrorMessage(responseBody);
 		}		
 		else
 		{			
-			customRequest.setMessage(IOUtils.toString(requestContext.getResponseDataStream()));
+			customRequest.setMessage(responseBody);
 		}		
 		logger.info("Indexing the request to elastic search - {}", customRequest.getRequestId());
 		loggerService.createLoggerForRequest(customRequest);
